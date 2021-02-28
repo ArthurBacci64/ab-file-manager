@@ -8,7 +8,11 @@
 
 int main()
 {
-    struct dirent **contents = ls("./", 1);
+    char *directory = pwd();
+
+    struct dirent **contents = ls(directory, 1, 0);
+    
+    free(directory);
     
     if (contents == NULL)
         return 1;
@@ -22,9 +26,6 @@ int main()
         i++;
     }
     
-    char *directory = pwd();
-    printf("%s\n", directory);
-    free(directory);
 
     return 0;
 }

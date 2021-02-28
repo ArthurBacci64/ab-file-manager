@@ -32,7 +32,7 @@ int sort_function(const void *a, const void *b)
 }
 
 // Returned data is NULL terminated
-struct dirent **ls(const char *filepath, bool sort_items)
+struct dirent **ls(const char *filepath, bool sort_items, bool show_hidden_files)
 {
     DIR *directory = opendir(filepath);
     
@@ -51,9 +51,12 @@ struct dirent **ls(const char *filepath, bool sort_items)
     // If there are no more items, readdir returns NULL
     while (item = readdir(directory))
     {
-        items = realloc(items, (itemslen + 2) * sizeof *items);
-        items[itemslen] = item;
-        items[++itemslen] = NULL;
+        if (show_hidden_files || *item->d_name != '.' || strcmp(item->d_name, ".") == 0 || strcmp(item->d_name, "..") == 0)
+        {
+            items = realloc(items, (itemslen + 2) * sizeof *items);
+            items[itemslen] = item;
+            items[++itemslen] = NULL;
+        }
     }
     
     if (sort_items)
