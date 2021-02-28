@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include <dirent.h>
 #include <sys/types.h>
@@ -8,9 +9,25 @@
 
 int sort_function(const void *a, const void *b)
 {
+    const int alen = strlen((*(struct dirent **)a)->d_name);
+    const int blen = strlen((*(struct dirent **)b)->d_name);
+    
+    char *lower_a, *lower_b;
+    lower_a = malloc(alen + 1);
+    lower_b = malloc(blen + 1);
+    
+    for (int i = 0; i <= alen; i++)
+    {
+        lower_a[i] = tolower(*(*(struct dirent **)a)->d_name);
+    }
+    for (int i = 0; i <= blen; i++)
+    {
+        lower_b[i] = tolower(*(*(struct dirent **)b)->d_name);
+    }
+    
     return strcmp(
-        (*(struct dirent **)a)->d_name,
-        (*(struct dirent **)b)->d_name
+        lower_a,
+        lower_b
     );
 }
 
