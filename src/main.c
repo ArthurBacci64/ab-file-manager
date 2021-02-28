@@ -1,8 +1,10 @@
 #include <abfm/functions.h>
 
+// printf
 #include <stdio.h>
 
-int main() {
+int main()
+{
     printf("OK\n");
     return 0;
 }

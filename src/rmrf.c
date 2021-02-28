@@ -1,4 +1,6 @@
+// nftw()
 #define _XOPEN_SOURCE 500
+
 // nftw()
 #include <ftw.h>
 
@@ -13,10 +15,8 @@ int walker_function(const char *fpath, const struct stat *sb, int typeflag, stru
 }
 
 // Remove a directory and all it's contents
-int rmrf(const char *filepath)
+void rmrf(const char *filepath)
 {
     nftw(filepath, walker_function, 1, FTW_DEPTH | FTW_PHYS);
-    
-    return 0;
 }
 
