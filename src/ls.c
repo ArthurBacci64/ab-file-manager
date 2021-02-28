@@ -45,6 +45,8 @@ struct dirent **ls(const char *filepath, bool sort_items)
         qsort(items, itemslen, sizeof *items, sort_function);
     }
     
+    closedir(directory);
+    
     return items;
 }
 
