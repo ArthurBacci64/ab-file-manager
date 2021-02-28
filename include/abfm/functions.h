@@ -11,5 +11,8 @@ void rmrf(const char *filepath);
 // src/ls.c
 struct dirent **ls(const char *filepath, bool sort_items);
 
+// src/pwd.c
+char *pwd(void);
+
 #endif // #ifndef ABFMFUNCTIONS
 
