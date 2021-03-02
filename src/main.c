@@ -56,11 +56,11 @@ int main()
         {
             if (i == selected)
             {
-                printf(COLOR_REVERSE "%s" COLOR_RESET "\r\n", items[i]);
+                printf(COLOR_REVERSE "%-*s" COLOR_RESET "\r\n", w, items[i]);
             }
             else
             {
-                printf("%s\r\n", items[i]);
+                printf("%-*s\r\n", w, items[i]);
             }
         }
         move(0, h - 1);
