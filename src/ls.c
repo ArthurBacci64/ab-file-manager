@@ -51,7 +51,14 @@ struct dirent **ls(const char *filepath, bool sort_items, bool show_hidden_files
     // If there are no more items, readdir returns NULL
     while (item = readdir(directory))
     {
-        if (show_hidden_files || *item->d_name != '.' || strcmp(item->d_name, ".") == 0 || strcmp(item->d_name, "..") == 0)
+        if (
+            (
+                show_hidden_files ||
+                *item->d_name != '.' ||
+                strcmp(item->d_name, "..") == 0
+            ) &&
+            strcmp(item->d_name, ".") != 0
+        )
         {
             items = realloc(items, (itemslen + 2) * sizeof *items);
             items[itemslen] = item;
