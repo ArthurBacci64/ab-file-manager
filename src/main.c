@@ -144,9 +144,12 @@ int main()
                     selected = 0;
                     workdir_len = strlen(workdir);
                 }
+                break;
             }
             case 'D':
             {
+                if (get_from_stdin() != 'd')
+                    break;
                 int itemlen = strlen(items[selected]);
                 if (itemlen > 0 && items[selected][itemlen - 1] != '/')
                 {
@@ -169,6 +172,7 @@ int main()
                 
                 if (selected >= len_items)
                     selected = len_items - 1;
+                break;
             }
         }
     }
