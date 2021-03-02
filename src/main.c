@@ -8,6 +8,7 @@
 int main()
 {
     enable_raw_mode();
+    hide_cursor();
     
     char *workdir = pwd();
     int workdir_len = strlen(workdir);
@@ -34,6 +35,7 @@ int main()
     
     
     get_from_stdin();
+    show_cursor();
     
     disable_raw_mode();
     free(workdir);

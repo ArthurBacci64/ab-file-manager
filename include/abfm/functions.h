@@ -22,6 +22,8 @@ void disable_raw_mode(void);
 // src/io.c
 char get_from_stdin(void);
 void clear_screen(void);
+void hide_cursor(void);
+void show_cursor(void);
 
 #endif // #ifndef ABFMFUNCTIONS
 

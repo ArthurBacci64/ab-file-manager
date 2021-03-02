@@ -16,3 +16,13 @@ void clear_screen(void)
     fflush(stdout);
 }
 
+void hide_cursor(void)
+{
+    fputs("\033[?25l", stdout);
+}
+
+void show_cursor(void)
+{
+    fputs("\033[?25h", stdout);
+}
+
