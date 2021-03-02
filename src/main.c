@@ -144,10 +144,31 @@ int main()
                     selected = 0;
                     workdir_len = strlen(workdir);
                 }
-                else
+            }
+            case 'D':
+            {
+                int itemlen = strlen(items[selected]);
+                if (itemlen > 0 && items[selected][itemlen - 1] != '/')
                 {
-                    // TODO
+                    remove(items[selected]);
                 }
+                
+                // Free items
+                for (int i = 0; items[i]; i++)
+                {
+                    free(items[i]);
+                }
+                free(items);
+                    
+                    
+                items = strls(workdir, 1, 0);
+                    
+                // Calculates len_items
+                for (len_items = 0; items[len_items]; len_items++)
+                    ;
+                
+                if (selected >= len_items)
+                    selected = len_items - 1;
             }
         }
     }
