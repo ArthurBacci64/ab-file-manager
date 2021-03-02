@@ -49,7 +49,7 @@ struct dirent **ls(const char *filepath, bool sort_items, bool show_hidden_files
         return NULL;
     }
     
-    struct dirent **items = malloc(sizeof *items);
+    struct dirent **items = malloc(2 * sizeof *items);
     *items = NULL;
     
     int itemslen = 0;
@@ -62,10 +62,11 @@ struct dirent **ls(const char *filepath, bool sort_items, bool show_hidden_files
         if (
             (
                 show_hidden_files ||
-                *item->d_name != '.' ||
-                strcmp(item->d_name, "..") == 0
+                *item->d_name != '.'
             ) &&
-            strcmp(item->d_name, ".") != 0
+            strcmp(item->d_name, ".") != 0 &&
+            strcmp(item->d_name, "..") != 0 &&
+            item->d_name
         )
         {
             items = realloc(items, (itemslen + 2) * sizeof *items);
@@ -90,24 +91,26 @@ char **strls(const char *filepath, bool sort_items, bool show_hidden_files)
 {
     struct dirent **items = ls(filepath, sort_items, show_hidden_files);
     
-    char **r = NULL;
+    char **r = malloc(2 * sizeof *r);
+    r[0] = malloc(4);
+    strcpy(r[0], "../");
     
-    int i;
+    int i = 0;
     for (i = 0; items[i]; i++)
     {
-        r = realloc(r, (i + 2) * sizeof *r);
-        r[i] = malloc(1000);
+        r = realloc(r, (i + 3) * sizeof *r);
+        r[i + 1] = malloc(1000);
         if (items[i]->d_type == DT_DIR)
         {
-            snprintf(r[i], 1000, "%s/", items[i]->d_name);
+            snprintf(r[i + 1], 1000, "%s/", items[i]->d_name);
         }
         else
         {
-            snprintf(r[i], 1000, "%s", items[i]->d_name);
+            snprintf(r[i + 1], 1000, "%s", items[i]->d_name);
         }
         free(items[i]);
     }
-    r[i] = NULL;
+    r[i + 1] = NULL;
     
     free(items);
     return r;

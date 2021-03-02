@@ -19,8 +19,6 @@ int main()
         workdir[workdir_len]   = '\0';
     }
     
-    workdir = realloc(workdir, workdir_len + 1);
-    
     int w, h;
     
     get_screen_size(&w, &h);
@@ -38,7 +36,7 @@ int main()
     while (1)
     {
         clear_screen();
-        for (int i = 0; items[i]; i++)
+        for (int i = 0; items[i] && i < h - 1; i++)
         {
             if (i == selected)
             {
@@ -49,6 +47,9 @@ int main()
                 printf("%s\r\n", items[i]);
             }
         }
+        move(0, h - 1);
+        printf("%s", workdir);
+        fflush(stdout);
         
         if ((c = get_from_stdin()) == CTRL_KEY_OF('c'))
         {
@@ -82,16 +83,66 @@ int main()
                 if (len_items > c - '1' + 1)
                     selected = c - '1' + 1;
                 break;
+            case 'l':
+            {
+                int item_len = strlen(items[selected]);
+                if (item_len > 0 && items[selected][item_len - 1] == '/')
+                {
+                    if (selected == 0)
+                    {
+                        if (strcmp(workdir, "/") != 0)
+                        {
+                            workdir_len = strlen(workdir);
+                            workdir[workdir_len - 1] = '\0';
+                            char *pos = strrchr(workdir, '/');
+                            if (pos != NULL)
+                            {
+                                pos[1] = '\0';
+                            }
+                            else
+                            {
+                                workdir[workdir_len - 1] = '/';
+                            }
+                        }
+                    }
+                    else
+                    {
+                        strcat(workdir, items[selected]);
+                    }
+                    
+                    // Free items
+                    for (int i = 0; items[i]; i++)
+                    {
+                        free(items[i]);
+                    }
+                    free(items);
+                    
+                    
+                    items = strls(workdir, 1, 0);
+                    
+                    // Calculates len_items
+                    for (len_items = 0; items[len_items]; len_items++)
+                        ;
+                    
+                    selected = 0;
+                    workdir_len = strlen(workdir);
+                }
+                else
+                {
+                    // TODO
+                }
+            }
         }
     }
     
-    // Frees all items of items and items
+    // Free items
     for (int i = 0; items[i]; i++)
     {
         free(items[i]);
     }
     free(items);
     
+    clear_screen();
     show_cursor();
     
     disable_raw_mode();

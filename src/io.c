@@ -35,3 +35,9 @@ void get_screen_size(int *width, int *height)
     *height = w.ws_row;
 }
 
+void move(int x, int y)
+{
+    printf("\033[%d;%dH", y, x);
+    fflush(stdout);
+}
+

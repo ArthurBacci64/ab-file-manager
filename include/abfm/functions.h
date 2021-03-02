@@ -25,6 +25,7 @@ void clear_screen(void);
 void hide_cursor(void);
 void show_cursor(void);
 void get_screen_size(int *width, int *height);
+void move(int x, int y);
 
 #endif // #ifndef ABFMFUNCTIONS
 
