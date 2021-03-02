@@ -18,5 +18,8 @@ char *pwd(void);
 void enable_raw_mode(void);
 void disable_raw_mode(void);
 
+// src/io.c
+char get_from_stdin(void);
+
 #endif // #ifndef ABFMFUNCTIONS
 
