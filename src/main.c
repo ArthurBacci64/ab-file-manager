@@ -58,12 +58,29 @@ int main()
         switch (c)
         {
             case CTRL_KEY_OF('n'):
+            case 'j':
                 if (selected < len_items - 1)
                     selected++;
                 break;
             case CTRL_KEY_OF('p'):
+            case 'k':
                 if (selected > 0)
                     selected--;
+                break;
+            case '0':
+                selected = 0;
+                break;
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                if (len_items > c - '1' + 1)
+                    selected = c - '1' + 1;
                 break;
         }
     }
