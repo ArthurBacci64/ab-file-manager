@@ -20,21 +20,18 @@ int main()
     
     workdir = realloc(workdir, workdir_len + 1);
     
-    struct dirent **items = ls(workdir, 1, 0);
+    clear_screen();
     
+    char **items = strls(workdir, 1, 0);
+
     for (int i = 0; items[i]; i++)
     {
-        if (items[i]->d_type == DT_DIR)
-        {
-            printf("%s/\r\n", items[i]->d_name);
-        }
-        else
-        {
-            printf("%s\r\n", items[i]->d_name);
-        }
+        printf("%s\r\n", items[i]);
+        free(items[i]);
     }
     
     free(items);
+    
     
     get_from_stdin();
     

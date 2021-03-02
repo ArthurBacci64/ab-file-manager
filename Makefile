@@ -4,8 +4,10 @@ BDIR=build
 
 CFLAGS=-I$(IDIR)
 
+ASAN=
+
 $(BDIR)/abfm: $(SDIR)/*.c
 	mkdir -p $(BDIR)
-	$(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS) $(ASAN)
 
 

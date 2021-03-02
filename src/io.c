@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <stdio.h>
 
 char get_from_stdin(void)
 {
@@ -7,5 +8,11 @@ char get_from_stdin(void)
         ;
     
     return c;
+}
+
+void clear_screen(void)
+{
+    printf("\033[2J\033[H");
+    fflush(stdout);
 }
 

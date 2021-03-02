@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -16,19 +17,26 @@ int sort_function(const void *a, const void *b)
     lower_a = malloc(alen + 1);
     lower_b = malloc(blen + 1);
     
-    for (int i = 0; i <= alen; i++)
+    for (int i = 0; i < alen; i++)
     {
         lower_a[i] = tolower(*(*(struct dirent **)a)->d_name);
     }
-    for (int i = 0; i <= blen; i++)
+    for (int i = 0; i < blen; i++)
     {
         lower_b[i] = tolower(*(*(struct dirent **)b)->d_name);
     }
+    lower_a[alen] = '\0';
+    lower_b[blen] = '\0';
     
-    return strcmp(
+    int r = strcmp(
         lower_a,
         lower_b
     );
+    
+    free(lower_a);
+    free(lower_b);
+    
+    return r;
 }
 
 // Returned data is NULL terminated
@@ -61,7 +69,8 @@ struct dirent **ls(const char *filepath, bool sort_items, bool show_hidden_files
         )
         {
             items = realloc(items, (itemslen + 2) * sizeof *items);
-            items[itemslen] = item;
+            items[itemslen] = malloc(sizeof *item);
+            memcpy(items[itemslen], item, sizeof *item);
             items[++itemslen] = NULL;
         }
     }
@@ -75,5 +84,32 @@ struct dirent **ls(const char *filepath, bool sort_items, bool show_hidden_files
     closedir(directory);
     
     return items;
+}
+
+char **strls(const char *filepath, bool sort_items, bool show_hidden_files)
+{
+    struct dirent **items = ls(filepath, sort_items, show_hidden_files);
+    
+    char **r = NULL;
+    
+    int i;
+    for (i = 0; items[i]; i++)
+    {
+        r = realloc(r, (i + 2) * sizeof *r);
+        r[i] = malloc(1000);
+        if (items[i]->d_type == DT_DIR)
+        {
+            snprintf(r[i], 1000, "%s/", items[i]->d_name);
+        }
+        else
+        {
+            snprintf(r[i], 1000, "%s", items[i]->d_name);
+        }
+        free(items[i]);
+    }
+    r[i] = NULL;
+    
+    free(items);
+    return r;
 }
 
