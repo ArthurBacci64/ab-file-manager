@@ -24,6 +24,7 @@ char get_from_stdin(void);
 void clear_screen(void);
 void hide_cursor(void);
 void show_cursor(void);
+void get_screen_size(int *width, int *height);
 
 #endif // #ifndef ABFMFUNCTIONS
 

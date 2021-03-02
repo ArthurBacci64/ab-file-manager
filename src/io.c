@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <stdio.h>
+#include <sys/ioctl.h>
 
 char get_from_stdin(void)
 {
@@ -24,5 +25,13 @@ void hide_cursor(void)
 void show_cursor(void)
 {
     fputs("\033[?25h", stdout);
+}
+
+void get_screen_size(int *width, int *height)
+{
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+    *width = w.ws_col;
+    *height = w.ws_row;
 }
 
