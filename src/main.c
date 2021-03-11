@@ -29,6 +29,8 @@ int main()
     hide_cursor();
     
     char *workdir = pwd();
+    char lastworkdir[1000];
+    strcpy(lastworkdir, workdir);
     int workdir_len = strlen(workdir);
     
     if (workdir_len > 1 && workdir[workdir_len - 1] != '/')
@@ -57,7 +59,7 @@ int main()
     {
         clear_screen();
         scroll_y = calculate_scroll_y(scroll_y, selected, h - 2);
-        
+
         for (int i = scroll_y; items[i] && i - scroll_y < h - 2; i++)
         {
             struct stat st;
@@ -190,13 +192,21 @@ int main()
                     
                     
                     items = strls(workdir, 1, 0);
+
+                    if (!items)
+                    {
+                        strcpy(workdir, lastworkdir);
+                        items = strls(workdir, 1, 0);
+                    }
                     
                     // Calculates len_items
                     for (len_items = 0; items[len_items]; len_items++)
                         ;
                     
                     selected = 0;
+
                     workdir_len = strlen(workdir);
+                    strcpy(lastworkdir, workdir);
                 }
                 break;
             }
@@ -249,5 +259,4 @@ int main()
     
     return 0;
 }
-
 
