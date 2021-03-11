@@ -5,6 +5,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <grp.h>
+#include <pwd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
 int calculate_scroll_y(int scroll_y, int selected, int rows)
 {
     if (scroll_y <= selected - rows)
@@ -52,15 +57,64 @@ int main()
     {
         clear_screen();
         scroll_y = calculate_scroll_y(scroll_y, selected, h - 2);
-        for (int i = scroll_y; items[i] && i - scroll_y < h - 1; i++)
+        
+        for (int i = scroll_y; items[i] && i - scroll_y < h - 2; i++)
         {
-            if (i == selected)
+            struct stat st;
+            int plen;
+
+            char abspath[1000];
+            strcpy(abspath, workdir);
+            strcat(abspath, items[i]);
+            
+            if (stat(abspath, &st) < 0)
             {
-                printf(COLOR_REVERSE "%-*s" COLOR_RESET "\r\n", w, items[i]);
+                plen = printf("err    ");
             }
             else
             {
-                printf("%-*s\r\n", w, items[i]);
+                struct passwd *pwd = getpwuid(st.st_uid);
+                char usrstr[1000];
+                if (pwd)
+                    strcpy(usrstr, pwd->pw_name);
+                else
+                    strcpy(usrstr, "err");
+
+                struct group *grp = getgrgid(st.st_gid);
+                char grpstr[1000];
+                if (grp)
+                    strcpy(grpstr, grp->gr_name);
+                else
+                    strcpy(grpstr, "err");
+                
+                plen = printf("%c%c%c%c%c%c%c%c%c%c %-10s %-10s    ",
+                              S_ISDIR(st.st_mode)  ? 'd' : '-',
+                              
+                              st.st_mode & S_IRUSR ? 'r' : '-',
+                              st.st_mode & S_IWUSR ? 'w' : '-',
+                              st.st_mode & S_IXUSR ? 'x' : '-',
+            
+                              st.st_mode & S_IRGRP ? 'r' : '-',
+                              st.st_mode & S_IWGRP ? 'w' : '-',
+                              st.st_mode & S_IXGRP ? 'x' : '-',
+            
+                              st.st_mode & S_IROTH ? 'r' : '-',
+                              st.st_mode & S_IWOTH ? 'w' : '-',
+                              st.st_mode & S_IXOTH ? 'x' : '-',
+
+                              usrstr,
+                              grpstr
+                    );
+            }
+
+            
+            if (i == selected)
+            {
+                printf(COLOR_REVERSE "%-*s" COLOR_RESET "\r\n", w - plen, items[i]);
+            }
+            else
+            {
+                printf("%-*s\r\n", w - plen, items[i]);
             }
         }
         move(0, h - 1);
@@ -153,7 +207,10 @@ int main()
                 int itemlen = strlen(items[selected]);
                 if (itemlen > 0 && items[selected][itemlen - 1] != '/')
                 {
-                    remove(items[selected]);
+                    char fname[1000];
+                    strcpy(fname, workdir);
+                    strcat(fname, items[selected]);
+                    remove(fname);
                 }
                 
                 // Free items

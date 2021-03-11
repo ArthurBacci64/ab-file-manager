@@ -90,9 +90,12 @@ struct dirent **ls(const char *filepath, bool sort_items, bool show_hidden_files
 char **strls(const char *filepath, bool sort_items, bool show_hidden_files)
 {
     struct dirent **items = ls(filepath, sort_items, show_hidden_files);
+
+    if (!items)
+        return NULL;
     
     char **r = malloc(2 * sizeof *r);
-    r[0] = malloc(4);
+    r[0] = malloc(1000);
     strcpy(r[0], "../");
     
     int i = 0;
@@ -100,6 +103,7 @@ char **strls(const char *filepath, bool sort_items, bool show_hidden_files)
     {
         r = realloc(r, (i + 3) * sizeof *r);
         r[i + 1] = malloc(1000);
+
         if (items[i]->d_type == DT_DIR)
         {
             snprintf(r[i + 1], 1000, "%s/", items[i]->d_name);
