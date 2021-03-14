@@ -13,14 +13,72 @@
 int calculate_scroll_y(int scroll_y, int selected, int rows)
 {
     if (scroll_y <= selected - rows)
-    {
         return selected - rows + 1;
-    }
     if (selected < scroll_y)
-    {
         return selected;
-    }
     return scroll_y;
+}
+
+void freePerms(char **perms)
+{
+    for (int i = 0; perms[i]; i++)
+        free(perms[i]);
+    free(perms);
+}
+
+char **calculatePerms(char **items, int len_items, char *workdir)
+{
+    char **perms = malloc((len_items + 1) * sizeof(char *));
+    for (int i = 0; items[i]; i++)
+    {
+        struct stat st;
+        char abspath[1000];
+        strcpy(abspath, workdir);
+        strcat(abspath, items[i]); 
+
+        perms[i] = malloc(100);
+        
+        if (stat(abspath, &st) < 0)
+            snprintf(perms[i], 100, "err    ");
+        else
+        {
+            struct passwd *pwd = getpwuid(st.st_uid);
+            char usrstr[1000];
+            if (pwd)
+                strcpy(usrstr, pwd->pw_name);
+            else
+                strcpy(usrstr, "err");
+
+            struct group *grp = getgrgid(st.st_gid);
+            char grpstr[1000];
+            if (grp)
+                strcpy(grpstr, grp->gr_name);
+            else
+                strcpy(grpstr, "err");
+
+            
+            snprintf(perms[i], 100, "%c%c%c%c%c%c%c%c%c%c %-10s %-10s    ",
+                          S_ISDIR(st.st_mode)  ? 'd' : '-',
+                              
+                          st.st_mode & S_IRUSR ? 'r' : '-',
+                          st.st_mode & S_IWUSR ? 'w' : '-',
+                          st.st_mode & S_IXUSR ? 'x' : '-',
+            
+                          st.st_mode & S_IRGRP ? 'r' : '-',
+                          st.st_mode & S_IWGRP ? 'w' : '-',
+                          st.st_mode & S_IXGRP ? 'x' : '-',
+            
+                          st.st_mode & S_IROTH ? 'r' : '-',
+                          st.st_mode & S_IWOTH ? 'w' : '-',
+                          st.st_mode & S_IXOTH ? 'x' : '-',
+
+                          usrstr,
+                          grpstr
+                );
+        }
+    }
+    perms[len_items] = NULL;
+    return perms;
 }
 
 int main()
@@ -50,6 +108,8 @@ int main()
     for (len_items = 0; items[len_items]; len_items++)
         ;
 
+    char **perms = calculatePerms(items, len_items, workdir);
+    
     int scroll_y = 0;
 
     int selected = 0;
@@ -62,62 +122,11 @@ int main()
 
         for (int i = scroll_y; items[i] && i - scroll_y < h - 2; i++)
         {
-            struct stat st;
-            int plen;
-
-            char abspath[1000];
-            strcpy(abspath, workdir);
-            strcat(abspath, items[i]);
-            
-            if (stat(abspath, &st) < 0)
-            {
-                plen = printf("err    ");
-            }
-            else
-            {
-                struct passwd *pwd = getpwuid(st.st_uid);
-                char usrstr[1000];
-                if (pwd)
-                    strcpy(usrstr, pwd->pw_name);
-                else
-                    strcpy(usrstr, "err");
-
-                struct group *grp = getgrgid(st.st_gid);
-                char grpstr[1000];
-                if (grp)
-                    strcpy(grpstr, grp->gr_name);
-                else
-                    strcpy(grpstr, "err");
-                
-                plen = printf("%c%c%c%c%c%c%c%c%c%c %-10s %-10s    ",
-                              S_ISDIR(st.st_mode)  ? 'd' : '-',
-                              
-                              st.st_mode & S_IRUSR ? 'r' : '-',
-                              st.st_mode & S_IWUSR ? 'w' : '-',
-                              st.st_mode & S_IXUSR ? 'x' : '-',
-            
-                              st.st_mode & S_IRGRP ? 'r' : '-',
-                              st.st_mode & S_IWGRP ? 'w' : '-',
-                              st.st_mode & S_IXGRP ? 'x' : '-',
-            
-                              st.st_mode & S_IROTH ? 'r' : '-',
-                              st.st_mode & S_IWOTH ? 'w' : '-',
-                              st.st_mode & S_IXOTH ? 'x' : '-',
-
-                              usrstr,
-                              grpstr
-                    );
-            }
-
-            
+            size_t permslen = strlen(perms[i]);
             if (i == selected)
-            {
-                printf(COLOR_REVERSE "%-*s" COLOR_RESET "\r\n", w - plen, items[i]);
-            }
+                printf("%s" COLOR_REVERSE "%-*s" COLOR_RESET "\r\n", perms[i], w - permslen, items[i]);
             else
-            {
-                printf("%-*s\r\n", w - plen, items[i]);
-            }
+                printf("%s%-*s\r\n", perms[i], w - permslen, items[i]);
         }
         move(0, h - 1);
         printf("%s", workdir);
@@ -202,6 +211,9 @@ int main()
                     // Calculates len_items
                     for (len_items = 0; items[len_items]; len_items++)
                         ;
+
+                    freePerms(perms);
+                    perms = calculatePerms(items, len_items, workdir);
                     
                     selected = 0;
 
@@ -236,6 +248,10 @@ int main()
                 // Calculates len_items
                 for (len_items = 0; items[len_items]; len_items++)
                     ;
+
+                
+                freePerms(perms);
+                perms = calculatePerms(items, len_items, workdir);
                 
                 if (selected >= len_items)
                     selected = len_items - 1;
@@ -256,6 +272,7 @@ int main()
     
     disable_raw_mode();
     free(workdir);
+    freePerms(perms);
     
     return 0;
 }
